@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">ChatApp</string>
+    <string name="supervised_text">Supervised by Muhammad Nabil</string>
 </resources>
