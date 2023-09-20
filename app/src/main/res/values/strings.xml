@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">ChatApp</string>
     <string name="supervised_text">Supervised by Muhammad Nabil</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="or_create_a_new_account">or Create a new account</string>
+    <string name="login_text">Login</string>
+    <string name="register_text">Register</string>
 </resources>
