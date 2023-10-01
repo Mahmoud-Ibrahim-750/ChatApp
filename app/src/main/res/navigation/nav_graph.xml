@@ -45,6 +45,30 @@
     </fragment>
     <fragment
         android:id="@+id/homeFragment"
-        android:name="com.mis.route.chatapp.ui.fragments.HomeFragment"
-        android:label="HomeFragment" />
+        android:name="com.mis.route.chatapp.ui.fragments.home.HomeFragment"
+        android:label="HomeFragment" >
+        <action
+            android:id="@+id/action_homeFragment_to_createRoomFragment"
+            app:destination="@id/createRoomFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_chatFragment"
+            app:destination="@id/chatFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/createRoomFragment"
+        android:name="com.mis.route.chatapp.ui.fragments.createroom.CreateRoomFragment"
+        android:label="CreateRoomFragment" >
+        <action
+            android:id="@+id/action_createRoomFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/chatFragment"
+        android:name="com.mis.route.chatapp.ui.fragments.chat.ChatFragment"
+        android:label="fragment_chat"
+        tools:layout="@layout/fragment_chat" >
+        <argument
+            android:name="room"
+            app:argType="com.mis.route.chatapp.ui.fragments.createroom.model.Room" />
+    </fragment>
 </navigation>
