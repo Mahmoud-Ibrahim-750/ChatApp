@@ -2,20 +2,20 @@ package com.mis.route.chatapp.ui.fragments
 
 import android.content.DialogInterface
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.mis.route.chatapp.R
 import com.mis.route.chatapp.data.firebase.AuthState
-import com.mis.route.chatapp.data.firebase.LoginState
+import com.mis.route.chatapp.data.firebase.AuthStatus
 import com.mis.route.chatapp.databinding.FragmentRegisterBinding
 import com.mis.route.chatapp.model.ChatViewModel
-import com.mis.route.chatapp.ui.Extensions.buildProgressDialog
 import com.mis.route.chatapp.ui.Extensions.showMessage
-import com.mis.route.chatapp.ui.Message
+import com.mis.route.chatapp.ui.DialogMessage
 import com.mis.route.chatapp.ui.UiConstants
 
 /**
@@ -44,50 +44,51 @@ class RegisterFragment : Fragment() {
     }
 
     private fun observeProperties() {
-        val loadingProgressDialog = buildProgressDialog(
-            Message(
-            title = "Loading",
-            content = "Creating your account...",
-            cancelable = false
-        )
-        )
-        sharedViewModel.authStatus.observe(viewLifecycleOwner) {
-            when (it.state) {
-                AuthState.Loading -> {
-                    loadingProgressDialog.show()
-                }
-                AuthState.Succeeded -> {
-                    loadingProgressDialog.dismiss()
-                    val args = Bundle()
-                    args.putString(UiConstants.PASSED_EMAIL, binding.emailInput.text.toString())
-                    args.putString(UiConstants.PASSED_PASSWORD, binding.passwordInput.text.toString())
-                    findNavController().navigate(R.id.action_registerFragment_to_loginFragment, args)
-                }
-                AuthState.Failed -> {
-                    loadingProgressDialog.dismiss()
-                    showMessage(Message(
-                        title = "Something went wrong",
-                        content = it.error,
-                        posMessage = "Try again",
-                        posAction = { dialogInterface: DialogInterface, _: Int ->
-                            dialogInterface.dismiss()
-                            registerAccount()
-                        },
-                        negMessage = "Cancel",
-                        negAction = { dialogInterface: DialogInterface, _: Int ->
-                            dialogInterface.dismiss()
-                        }
-                    ))
-                }
+        sharedViewModel.authStatus.observe(viewLifecycleOwner, ::handleRegisterEvents)
+    }
 
-                else -> {}
+    private fun handleRegisterEvents(authStatus: AuthStatus) {
+        when (authStatus.state) {
+            AuthState.Loading -> showLoading(true)
+
+            AuthState.Succeeded -> {
+                showLoading(false)
+                val args = Bundle().apply {
+                    putString(UiConstants.PASSED_EMAIL, binding.emailInput.text.toString())
+                    putString(UiConstants.PASSED_PASSWORD, binding.passwordInput.text.toString())
+                }
+                findNavController().navigate(R.id.action_registerFragment_to_loginFragment, args)
             }
+            AuthState.Failed -> {
+                showLoading(false)
+                showMessage(DialogMessage(
+                    title = "Something went wrong",
+                    content = authStatus.error,
+                    posMessage = "Try again",
+                    posAction = { dialogInterface: DialogInterface, _: Int ->
+                        dialogInterface.dismiss()
+                        registerAccount()
+                    },
+                    negMessage = "Cancel",
+                    negAction = { dialogInterface: DialogInterface, _: Int ->
+                        dialogInterface.dismiss()
+                    }
+                ))
+            }
+
+            else -> {}
         }
+    }
+
+    private fun showLoading(show: Boolean) {
+        binding.loadingProgressBar.isVisible = show
+        binding.arrowImage.isVisible = !show
     }
 
     fun registerAccount() {
         if (validateCredentials()) {
             sharedViewModel.createAccount(
+                binding.usernameInput.text.toString().trim(),
                 binding.emailInput.text.toString().trim(),
                 binding.passwordInput.text.toString().trim()
             )

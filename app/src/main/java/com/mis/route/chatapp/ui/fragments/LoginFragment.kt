@@ -5,16 +5,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.mis.route.chatapp.R
 import com.mis.route.chatapp.data.firebase.LoginState
+import com.mis.route.chatapp.data.firebase.LoginStatus
 import com.mis.route.chatapp.databinding.FragmentLoginBinding
 import com.mis.route.chatapp.model.ChatViewModel
-import com.mis.route.chatapp.ui.Extensions.buildProgressDialog
 import com.mis.route.chatapp.ui.Extensions.showMessage
-import com.mis.route.chatapp.ui.Message
+import com.mis.route.chatapp.ui.DialogMessage
 import com.mis.route.chatapp.ui.UiConstants
 
 /**
@@ -53,42 +54,42 @@ class LoginFragment : Fragment() {
     }
 
     private fun observeProperties() {
-        val loadingProgressDialog = buildProgressDialog(Message(
-            title = "Loading",
-            content = "Signing in...",
-            cancelable = false
-        ))
-        sharedViewModel.loginStatus.observe(viewLifecycleOwner) {
-            when (it.state) {
-                LoginState.Loading -> {
-                    loadingProgressDialog.show()
-                }
-                LoginState.Succeeded -> {
-                    loadingProgressDialog.dismiss()
-                    findNavController().navigate(R.id.action_loginFragment_to_homeFragment)
-                }
-                LoginState.Failed -> {
-                    loadingProgressDialog.dismiss()
-                    showMessage(Message(
-                        title = "Something went wrong",
-                        content = it.error,
-                        posMessage = "Try again",
-                        posAction = { dialogInterface: DialogInterface, _: Int ->
-                            login()
-                            dialogInterface.dismiss()
-                        },
-                        negMessage = "Cancel",
-                        negAction = { dialogInterface: DialogInterface, _: Int ->
-                            dialogInterface.dismiss()
-                        }
-                    ))
-                }
+        sharedViewModel.loginStatus.observe(viewLifecycleOwner, ::handleLoginEvents)
+    }
 
-                else -> {}
+    private fun handleLoginEvents(loginStatus: LoginStatus) {
+        when (loginStatus.state) {
+            LoginState.Loading -> showLoading(true)
+
+            LoginState.Succeeded -> {
+                showLoading(false)
+                findNavController().navigate(R.id.action_loginFragment_to_homeFragment)
             }
+
+            LoginState.Failed -> {
+                showLoading(false)
+                showMessage(DialogMessage(
+                    title = "Something went wrong",
+                    content = loginStatus.error,
+                    posMessage = "Try again",
+                    posAction = { dialogInterface: DialogInterface, _: Int ->
+                        login()
+                        dialogInterface.dismiss()
+                    },
+                    negMessage = "Cancel",
+                    negAction = { dialogInterface: DialogInterface, _: Int ->
+                        dialogInterface.dismiss()
+                    }
+                ))
+            }
+
+            else -> {}
         }
+    }
 
-
+    private fun showLoading(show: Boolean) {
+        binding.loadingProgressBar.isVisible = show
+        binding.arrowImage.isVisible = !show
     }
 
     fun navigateToRegister() {
@@ -100,6 +101,14 @@ class LoginFragment : Fragment() {
             binding.emailInput.text.toString().trim(),
             binding.passwordInput.text.toString().trim()
         )
+    }
+
+    fun fakeLogin() {
+        sharedViewModel.singIn("aya@dev.com", "123456")
+    }
+
+    fun resetPassword() {
+        // TODO: implement later
     }
 
     override fun onDestroy() {

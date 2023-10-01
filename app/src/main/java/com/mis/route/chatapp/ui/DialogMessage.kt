@@ -2,7 +2,7 @@ package com.mis.route.chatapp.ui
 
 import android.content.DialogInterface
 
-data class Message(
+data class DialogMessage(
     val title: String? = null,
     val content: String? = null,
     val posMessage: String? = null,

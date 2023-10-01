@@ -4,8 +4,8 @@ import android.app.AlertDialog
 import androidx.fragment.app.Fragment
 
 object Extensions {
-    fun Fragment.showMessage(message: Message) {
-        message.apply {
+    fun Fragment.showMessage(dialogMessage: DialogMessage) {
+        dialogMessage.apply {
             AlertDialog.Builder(context)
                 .setTitle(title)
                 .setMessage(content)
@@ -16,8 +16,8 @@ object Extensions {
         }
     }
 
-    fun Fragment.buildProgressDialog(message: Message): AlertDialog {
-        message.apply {
+    fun Fragment.buildProgressDialog(dialogMessage: DialogMessage): AlertDialog {
+        dialogMessage.apply {
             return AlertDialog.Builder(context)
                 .setTitle(title)
                 .setMessage(content)

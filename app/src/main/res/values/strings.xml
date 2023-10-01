@@ -6,4 +6,17 @@
     <string name="or_create_a_new_account">or Create a new account</string>
     <string name="login_text">Login</string>
     <string name="register_text">Register</string>
+    <string name="username">Username</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="password_confirmation">Password Confirmation</string>
+    <string name="create_new_room">Create New Room</string>
+    <string name="room_name">Room Name</string>
+    <string name="room_description">Room Description</string>
+    <string name="create">Create</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="welcome_back">Welcome back!</string>
+    <string name="message">Message</string>
+    <string name="type_a_message">Type a message</string>
+    <string name="send">Send</string>
 </resources>
