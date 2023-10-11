@@ -8,6 +8,7 @@ import com.mis.route.chatapp.ui.fragments.createroom.model.Room
 
 class RoomsAdapter(var roomsList: List<Room>?) : RecyclerView.Adapter<RoomsAdapter.ViewHolder>() {
     class ViewHolder(val binding: ItemRoomBinding) : RecyclerView.ViewHolder(binding.root) {
+        // TODO: implement the joining status later
 //        fun bindJoinStatus(room: Room) {
 //            if (room.membersIds.contains(room.))
 //            binding.joinButton.text =

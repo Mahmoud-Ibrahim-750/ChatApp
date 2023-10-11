@@ -19,4 +19,15 @@
     <string name="message">Message</string>
     <string name="type_a_message">Type a message</string>
     <string name="send">Send</string>
+    <string name="join">Join</string>
+    <string name="create_account">Create Account</string>
+    <string name="type_a_room_name_to_search_for">Type a room name to search for</string>
+    <string name="search">Search</string>
+    <string name="no_rooms_to_show">No Rooms to show</string>
+    <string name="no_messages_to_show">No Messages to show</string>
+    <string name="leave_room">Leave Room</string>
+    <plurals name="members_count">
+        <item formatted="true" quantity="one">%s Member</item>
+        <item formatted="true" quantity="other">%s Members</item>
+    </plurals>
 </resources>

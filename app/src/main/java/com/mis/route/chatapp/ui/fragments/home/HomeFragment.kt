@@ -1,16 +1,21 @@
 package com.mis.route.chatapp.ui.fragments.home
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.SearchView.OnQueryTextListener
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.tabs.TabLayoutMediator
 import com.mis.route.chatapp.R
 import com.mis.route.chatapp.databinding.FragmentHomeBinding
 import com.mis.route.chatapp.databinding.HeaderNavigationDrawerBinding
 import com.mis.route.chatapp.model.ChatViewModel
+
 
 // TODO: back button and single live event?
 class HomeFragment : Fragment() {
@@ -33,8 +38,59 @@ class HomeFragment : Fragment() {
             viewModel = sharedViewModel
             homeFragment = this@HomeFragment
         }
-        initRoomsViewPager()
+        initSearchBar()
+        initTabLayoutWithViewPager()
         initDrawerLayout()
+    }
+
+    private fun initSearchBar() {
+        binding.searchLayout.setOnQueryTextListener(object : OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                val viewPager = binding.viewPager
+                if (viewPager.currentItem == 0) {
+                    Log.e("################", "my rooms")
+                    sharedViewModel.filterMyRoomsList(newText.toString())
+                } else {
+                    Log.e("################", "all rooms")
+                    sharedViewModel.filterAllRoomsList(newText.toString())
+                }
+                return false
+            }
+
+        })
+
+        binding.searchIcon.setOnClickListener {
+            toggleSearchView(true)
+            sharedViewModel.notifySearchStarted()
+        }
+
+        binding.searchCloseImage.setOnClickListener {
+            toggleSearchView(false)
+            sharedViewModel.notifySearchStopped()
+        }
+    }
+
+    private fun toggleSearchView(show: Boolean) {
+        binding.searchView.isVisible = show
+        binding.searchIcon.isVisible = !show
+        binding.drawerToggle.isVisible = !show
+        binding.titleTextview.isVisible = !show
+    }
+
+    private fun initTabLayoutWithViewPager() {
+        val pagerAdapter = RoomsViewPagerAdapter(this@HomeFragment)
+        binding.viewPager.adapter = pagerAdapter
+        TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
+            tab.text = when (position) {
+                0 -> "My Rooms"
+                1 -> "Browse"
+                else -> null
+            }
+        }.attach()
     }
 
     private fun initDrawerLayout() {
@@ -64,16 +120,6 @@ class HomeFragment : Fragment() {
                 }
             }
         }
-    }
-
-    private fun initRoomsViewPager() {
-        // TODO: debug the toolbar to show the tab layout later
-//        (requireActivity() as AppCompatActivity).setSupportActionBar(binding.toolbar)
-        val adapter = RoomsViewPagerAdapter(requireActivity().supportFragmentManager)
-        adapter.addFragment(MyRoomsFragment(), "My Rooms")
-        adapter.addFragment(AllRoomsFragment(), "Browse")
-        binding.viewPager.adapter = adapter
-        binding.tabLayout.setupWithViewPager(binding.viewPager)
     }
 
     fun navigateToCreateRoom() {

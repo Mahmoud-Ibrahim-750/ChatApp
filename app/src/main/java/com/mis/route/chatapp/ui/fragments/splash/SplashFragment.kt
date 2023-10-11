@@ -1,4 +1,4 @@
-package com.mis.route.chatapp.ui.fragments
+package com.mis.route.chatapp.ui.fragments.splash
 
 import android.os.Bundle
 import android.os.Handler

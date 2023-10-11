@@ -5,43 +5,39 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
-import com.google.firebase.ktx.Firebase
-import com.mis.route.chatapp.data.firebase.AuthState
-import com.mis.route.chatapp.data.firebase.AuthStatus
-import com.mis.route.chatapp.data.firebase.DataConstants
-import com.mis.route.chatapp.data.firebase.LoginState
-import com.mis.route.chatapp.data.firebase.LoginStatus
-import com.mis.route.chatapp.data.firebase.RoomCreationState
-import com.mis.route.chatapp.data.firebase.RoomCreationStatus
-import com.mis.route.chatapp.data.firebase.User
+import com.mis.route.chatapp.data.firebase.auth.FirebaseAuth
+import com.mis.route.chatapp.data.firebase.auth.FirebaseAuth.AUTH_TAG
+import com.mis.route.chatapp.data.firebase.auth.FirebaseAuth.getCurrentAuthUser
+import com.mis.route.chatapp.data.firebase.firestore.FirebaseFirestore
+import com.mis.route.chatapp.data.firebase.firestore.FirebaseFirestore.PROFILE_TAG
+import com.mis.route.chatapp.data.firebase.model.UserProfile
+import com.mis.route.chatapp.data.firebase.model.auth.AuthState
+import com.mis.route.chatapp.data.firebase.model.auth.AuthStatus
+import com.mis.route.chatapp.data.firebase.model.login.LoginState
+import com.mis.route.chatapp.data.firebase.model.login.LoginStatus
+import com.mis.route.chatapp.data.firebase.model.roomcreation.RoomCreationState
+import com.mis.route.chatapp.data.firebase.model.roomcreation.RoomCreationStatus
 import com.mis.route.chatapp.ui.fragments.createroom.model.Room
 import com.mis.route.chatapp.ui.model.Message
 
-const val AUTH_TAG = "AuthTag"
-const val PROFILE_TAG = "ProfileTag"
 
 class ChatViewModel : ViewModel() {
     // properties
-    // Initialize auth and fire store
-    private val auth = Firebase.auth
-    private val firestore = Firebase.firestore
 
     private var _authUser = MutableLiveData<FirebaseUser?>(null)
 //    val authUser: LiveData<FirebaseUser?> get() = _authUser
 
-    private var _user = MutableLiveData<User>(null)
-    val user: LiveData<User> get() = _user
+    private var _userProfileProfile = MutableLiveData<UserProfile>(null)
+    val userProfile: LiveData<UserProfile> get() = _userProfileProfile
 
     private var _authStatus = MutableLiveData(AuthStatus(AuthState.Idle))
     val authStatus: LiveData<AuthStatus> get() = _authStatus
 
-    private var _loginStatus = MutableLiveData(LoginStatus(LoginState.Idle))
+    private var _loginStatus = SingleLiveEvent(LoginStatus(LoginState.Idle))
     val loginStatus: LiveData<LoginStatus> get() = _loginStatus
 
-    private var _roomCreationStatus = MutableLiveData(RoomCreationStatus(RoomCreationState.Idle))
+    private var _roomCreationStatus = SingleLiveEvent(RoomCreationStatus(RoomCreationState.Idle))
     val roomCreationStatus: LiveData<RoomCreationStatus> get() = _roomCreationStatus
 
     private var _allRooms = MutableLiveData<List<Room>?>(null)
@@ -50,156 +46,190 @@ class ChatViewModel : ViewModel() {
     private var _myRooms = MutableLiveData<List<Room>?>(null)
     val myRooms: LiveData<List<Room>?> get() = _myRooms
 
+    private var _myRoomsSearch = MutableLiveData<List<Room>>(listOf())
+    val myRoomsSearch: LiveData<List<Room>> get() = _myRoomsSearch
+
+    private var _allRoomsSearch = MutableLiveData<List<Room>>(listOf())
+    val allRoomsSearch: LiveData<List<Room>> get() = _allRoomsSearch
+
+    private var _roomJoined = MutableLiveData(false)
+    val roomJoined: LiveData<Boolean> get() = _roomJoined
+
+    private var _roomLeft = MutableLiveData(false)
+    val roomLeft: LiveData<Boolean> get() = _roomLeft
+
+    private var _messages = MutableLiveData<MutableList<Message>>(mutableListOf())
+    val messages: LiveData<MutableList<Message>> get() = _messages
+
+    private var _searchViewVisible = MutableLiveData(false)
+    val searchViewVisible: LiveData<Boolean> get() = _searchViewVisible
+
+
     // functions
     fun createAccount(username: String, email: String, password: String) {
+        val currentAuthUser = getCurrentAuthUser() ?: return
         _authStatus.value = AuthStatus(AuthState.Loading)
-
-        auth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener { authTask ->
-                if (authTask.isSuccessful) {
-                    _authUser.value = auth.currentUser
-                    Log.i(AUTH_TAG, "user authenticated")
-                    createProfile(username, _authUser)
-                } else {
-                    _authStatus.value = AuthStatus(
-                        AuthState.Failed,
-                        authTask.exception?.localizedMessage.toString()
-                    )
-                }
+        FirebaseAuth.createAccount(email, password) { authTask ->
+            if (authTask.isSuccessful) {
+                _authUser.value = currentAuthUser
+                Log.i(AUTH_TAG, "user authenticated")
+                val userProfile = UserProfile(
+                    currentAuthUser.uid,
+                    username,
+                    currentAuthUser.email,
+                    0
+                )
+                createProfile(userProfile, currentAuthUser)
+            } else {
+                _authStatus.value =
+                    AuthStatus(AuthState.Failed, authTask.exception?.localizedMessage.toString())
             }
-    }
-
-    fun getCurrentUser(): FirebaseUser? {
-        return auth.currentUser
+        }
     }
 
     fun getCurrentUserProfile() {
         // get user and proceed or just return
-        val user = getCurrentUser() ?: return
-        val profileRef = firestore.collection(DataConstants.USERS_COLLECTION).document(user.uid)
-        profileRef.get()
-            .addOnSuccessListener { documentSnapshot ->
-                _user.value = documentSnapshot.toObject<User>()
-            }
-            .addOnFailureListener { exception ->
-                exception.localizedMessage?.let { Log.e(PROFILE_TAG, it) }
-            }
+        val userId = getCurrentAuthUser()?.uid.toString()
+        FirebaseFirestore.getCurrentUserProfile(userId) { task ->
+            if (task.isSuccessful) _userProfileProfile.value = task.result.toObject<UserProfile>()
+            else task.exception?.localizedMessage?.let { Log.e(PROFILE_TAG, it) }
+        }
     }
 
     fun singIn(email: String, password: String) {
         _loginStatus.value = LoginStatus(LoginState.Loading)
-
-        auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener { loginTask ->
-                if (loginTask.isSuccessful) {
-                    _authUser.value = auth.currentUser
-                    _loginStatus.value = LoginStatus(LoginState.Succeeded)
-                } else {
-                    _loginStatus.value = LoginStatus(
-                        LoginState.Failed,
-                        loginTask.exception?.localizedMessage.toString()
-                    )
-                }
-            }
-    }
-
-    private fun createProfile(username: String, authUser: MutableLiveData<FirebaseUser?>) {
-        val profile = User(
-            authUser.value!!.uid,
-            username,
-            authUser.value!!.email!!,
-            0
-        )
-        firestore.collection(DataConstants.USERS_COLLECTION)
-            .document(authUser.value!!.uid)
-            .set(profile)
-            .addOnSuccessListener {
-                _user.value = profile
-                _authStatus.value = AuthStatus(AuthState.Succeeded)
-            }
-            .addOnFailureListener { e ->
-                _authStatus.value = AuthStatus(
-                    AuthState.Failed,
-                    e.localizedMessage
+        FirebaseAuth.singIn(email, password) { loginTask ->
+            if (loginTask.isSuccessful) {
+                _authUser.value = getCurrentAuthUser()
+                _loginStatus.value = LoginStatus(LoginState.Succeeded)
+            } else {
+                _loginStatus.value = LoginStatus(
+                    LoginState.Failed,
+                    loginTask.exception?.localizedMessage.toString()
                 )
             }
+        }
+    }
+
+    private fun createProfile(profile: UserProfile, authUser: FirebaseUser) {
+        FirebaseFirestore.createProfile(profile, authUser) { task ->
+            if (task.isSuccessful) {
+                _userProfileProfile.value = profile
+                _authStatus.value = AuthStatus(AuthState.Succeeded)
+            } else _authStatus.value =
+                AuthStatus(AuthState.Failed, task.exception?.localizedMessage)
+        }
     }
 
     fun createRoom(room: Room) {
         _roomCreationStatus.value = RoomCreationStatus(RoomCreationState.Loading)
-        firestore.collection(DataConstants.ROOMS_COLLECTION)
-            .add(Room())
-            .addOnSuccessListener {
-                room.id = it.id
+        FirebaseFirestore.createNewEmptyRoom { roomCreationTask ->
+            if (roomCreationTask.isSuccessful) {
+                room.id = roomCreationTask.result.id
                 updateRoom(room)
+            } else {
+                _roomCreationStatus.value = RoomCreationStatus(
+                    RoomCreationState.Failed,
+                    roomCreationTask.exception?.localizedMessage
+                )
             }
-            .addOnFailureListener {
-                _roomCreationStatus.value =
-                    RoomCreationStatus(RoomCreationState.Failed, it.localizedMessage)
-            }
+        }
     }
 
     private fun updateRoom(room: Room) {
-        firestore.collection(DataConstants.ROOMS_COLLECTION)
-            .document(room.id!!)
-            .set(room)
-            .addOnSuccessListener {
+        FirebaseFirestore.updateRoom(room) { roomUpdateTask ->
+            if (roomUpdateTask.isSuccessful) {
                 _roomCreationStatus.value = RoomCreationStatus(RoomCreationState.Succeeded)
-            }
-            .addOnFailureListener {
+            } else {
                 _roomCreationStatus.value =
-                    RoomCreationStatus(RoomCreationState.Failed, it.localizedMessage)
+                    RoomCreationStatus(
+                        RoomCreationState.Failed,
+                        roomUpdateTask.exception?.localizedMessage
+                    )
             }
+        }
     }
 
     fun getAllRooms() {
-        firestore.collection(DataConstants.ROOMS_COLLECTION)
-            .get()
-            .addOnSuccessListener {
-                _allRooms.value = it.toObjects(Room::class.java)
-            }
-            .addOnFailureListener { exception ->
-                exception.localizedMessage?.let { Log.e("RoomsTag", it) }
-            }
+        FirebaseFirestore.getAllRooms { task ->
+            if (task.isSuccessful) _allRooms.value = task.result.toObjects(Room::class.java)
+            else task.exception?.localizedMessage?.let { Log.e("RoomsTag", it) }
+        }
     }
 
     fun getMyRooms() {
-        firestore.collection(DataConstants.ROOMS_COLLECTION)
-            .whereArrayContains("membersIds", getCurrentUser()?.uid.toString())
-            .get()
-            .addOnSuccessListener {
-                _myRooms.value = it.toObjects(Room::class.java)
-            }
-            .addOnFailureListener { exception ->
-                exception.localizedMessage?.let { Log.e("RoomsTag", it) }
-            }
+        val currentAuthUser = getCurrentAuthUser() ?: return
+        FirebaseFirestore.getRoomsContainingUserId(currentAuthUser) { task ->
+            if (task.isSuccessful) _myRooms.value = task.result.toObjects(Room::class.java)
+            else task.exception?.localizedMessage?.let { Log.e("RoomsTag", it) }
+        }
     }
 
-    fun getMessages(roomId: String) : MutableList<Message> {
-        var messages = mutableListOf<Message>()
-        firestore.collection(DataConstants.ROOMS_COLLECTION)
-            .document(roomId)
-            .collection(DataConstants.MESSAGES_COLLECTION)
-            .get()
-            .addOnSuccessListener {
-                messages = it.toObjects(Message::class.java)
-            }
-            .addOnFailureListener { exception ->
-                exception.localizedMessage?.let { Log.e("MessagesTag", it) }
-            }
-        return messages
+    fun getMessages(roomId: String) {
+        FirebaseFirestore.getMessagesByDateDescending(roomId) { task ->
+            if (task.isSuccessful) {
+                val messages = task.result.toObjects(Message::class.java)
+                messages.sortBy { message -> message.dateTime }
+                _messages.value = messages
+            } else task.exception?.localizedMessage?.let { Log.e("MessagesTag", it) }
+        }
     }
 
     fun sendMessage(message: Message) {
-        firestore.collection(DataConstants.ROOMS_COLLECTION)
-            .document(message.receiverId!!)
-            .collection(DataConstants.MESSAGES_COLLECTION)
-            .add(message)
-            .addOnSuccessListener {
-                Log.d("MessagesTag", "success")
+        FirebaseFirestore.sendMessage(message) { task ->
+            if (task.isSuccessful) Log.d("MessagesTag", "success")
+            else task.exception?.localizedMessage?.let { Log.e("MessagesTag", it) }
+        }
+    }
+
+    fun joinRoom(room: Room) {
+        val authUser = getCurrentAuthUser() ?: return
+        FirebaseFirestore.addUserToRoom(authUser, room) { task ->
+            if (task.isSuccessful) _roomJoined.value = true
+            else {
+                _roomJoined.value = false
+                task.exception?.localizedMessage?.let { Log.e("RoomTag", it) }
             }
-            .addOnFailureListener { exception ->
-                exception.localizedMessage?.let { Log.e("MessagesTag", it) }
+        }
+    }
+
+    fun leaveRoom(room: Room) {
+        val currentAuthUser = getCurrentAuthUser() ?: return
+        if (!room.isMember(currentAuthUser.uid)) return
+        FirebaseFirestore.removeUserFromRoom(currentAuthUser, room) { task ->
+            if (task.isSuccessful) _roomLeft.value = true
+            else {
+                _roomLeft.value = false
+                task.exception?.localizedMessage?.let { Log.e("RoomTag", it) }
             }
+        }
+    }
+
+    fun filterMyRoomsList(searchQuery: String) {
+        filterRoomsList(searchQuery, _myRooms, _myRoomsSearch)
+    }
+
+    fun filterAllRoomsList(searchQuery: String) {
+        filterRoomsList(searchQuery, _allRooms, _allRoomsSearch)
+    }
+
+    private fun filterRoomsList(
+        searchQuery: String,
+        sourceLiveData: MutableLiveData<List<Room>?>,
+        resultsLiveData: MutableLiveData<List<Room>>
+    ) {
+        val results = mutableListOf<Room>()
+        sourceLiveData.value?.forEach {
+            if (it.title!!.contains(searchQuery)) results.add(it)
+        }
+        resultsLiveData.value = results
+    }
+
+    fun notifySearchStarted() {
+        _searchViewVisible.value = true
+    }
+
+    fun notifySearchStopped() {
+        _searchViewVisible.value = false
     }
 }

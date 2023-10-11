@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/splashFragment"
-        android:name="com.mis.route.chatapp.ui.fragments.SplashFragment"
+        android:name="com.mis.route.chatapp.ui.fragments.splash.SplashFragment"
         android:label="fragment_splash"
         tools:layout="@layout/fragment_splash" >
         <action
@@ -16,7 +16,7 @@
     </fragment>
     <fragment
         android:id="@+id/loginFragment"
-        android:name="com.mis.route.chatapp.ui.fragments.LoginFragment"
+        android:name="com.mis.route.chatapp.ui.fragments.login.LoginFragment"
         android:label="fragment_login"
         tools:layout="@layout/fragment_login" >
         <action
@@ -36,7 +36,7 @@
     </fragment>
     <fragment
         android:id="@+id/registerFragment"
-        android:name="com.mis.route.chatapp.ui.fragments.RegisterFragment"
+        android:name="com.mis.route.chatapp.ui.fragments.register.RegisterFragment"
         android:label="fragment_register"
         tools:layout="@layout/fragment_register" >
         <action
@@ -51,24 +51,26 @@
             android:id="@+id/action_homeFragment_to_createRoomFragment"
             app:destination="@id/createRoomFragment" />
         <action
-            android:id="@+id/action_homeFragment_to_chatFragment"
-            app:destination="@id/chatFragment" />
+            android:id="@+id/action_homeFragment_to_roomJoinChatActivity"
+            app:destination="@id/roomJoinChatActivity" />
     </fragment>
     <fragment
         android:id="@+id/createRoomFragment"
         android:name="com.mis.route.chatapp.ui.fragments.createroom.CreateRoomFragment"
-        android:label="CreateRoomFragment" >
+        android:label="CreateRoomFragment">
         <action
             android:id="@+id/action_createRoomFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
     </fragment>
-    <fragment
-        android:id="@+id/chatFragment"
-        android:name="com.mis.route.chatapp.ui.fragments.chat.ChatFragment"
-        android:label="fragment_chat"
-        tools:layout="@layout/fragment_chat" >
+    <activity
+        android:id="@+id/roomJoinChatActivity"
+        android:name="com.mis.route.chatapp.ui.activities.RoomJoinChatActivity"
+        android:label="RoomJoinChatActivity">
+        <argument
+            android:name="isMember"
+            app:argType="boolean" />
         <argument
             android:name="room"
             app:argType="com.mis.route.chatapp.ui.fragments.createroom.model.Room" />
-    </fragment>
+    </activity>
 </navigation>

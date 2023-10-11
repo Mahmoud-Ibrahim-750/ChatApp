@@ -25,11 +25,37 @@
             android:layout_height="match_parent"
             tools:context=".ui.fragments.home.HomeFragment">
 
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tab_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/app_bar"
+                app:tabGravity="fill"
+                app:tabIndicatorColor="@color/white"
+                app:tabMode="fixed"
+                app:tabTextColor="@android:color/white" />
+
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/viewPager"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:paddingTop="70dp"
+                app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tab_layout">
+
+            </androidx.viewpager2.widget.ViewPager2>
+
             <com.google.android.material.appbar.AppBarLayout
                 android:id="@+id/app_bar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                android:background="@color/purple_200"
+                android:background="@android:color/transparent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
@@ -38,63 +64,91 @@
                     android:id="@+id/toolbar"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:paddingHorizontal="4dp">
+                    android:gravity="center"
+                    android:paddingHorizontal="4dp"
+                    app:contentInsetEnd="8dp"
+                    app:contentInsetStart="8dp"
+                    tools:background="@color/light_blue">
 
-                    <ImageButton
+                    <ImageView
                         android:id="@+id/drawer_toggle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
                         android:layout_gravity="start"
-                        android:src="@drawable/ic_menu" />
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_menu"
+                        app:tint="@color/white" />
 
                     <TextView
+                        android:id="@+id/title_textview"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:text="@{viewModel.user.username}"
+                        android:text="@{viewModel.userProfile.username}"
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
-                    <ImageButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                    <ImageView
+                        android:id="@+id/search_icon"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
                         android:layout_gravity="end"
-                        android:src="@drawable/ic_search" />
+                        android:src="@drawable/ic_search"
+                        app:tint="@color/white" />
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/search_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:visibility="gone">
+
+                        <androidx.appcompat.widget.SearchView
+                            android:id="@+id/search_layout"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_margin="12dp"
+                            android:background="@drawable/shape_search_background"
+                            android:focusable="true"
+                            android:gravity="center"
+                            android:visibility="visible"
+                            app:iconifiedByDefault="false"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@id/search_close_image"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:queryHint="Search..."
+                            app:searchHintIcon="@null"
+                            app:searchIcon="@drawable/ic_search" />
+
+                        <ImageView
+                            android:id="@+id/search_close_image"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:scaleType="center"
+                            android:src="@drawable/ic_close"
+                            app:layout_constraintBottom_toBottomOf="@id/search_layout"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="@id/search_layout"
+                            app:tint="@color/white" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
 
                 </androidx.appcompat.widget.Toolbar>
 
-                <com.google.android.material.tabs.TabLayout
-                    android:id="@+id/tab_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:tabBackground="@color/purple_200"
-                    app:tabGravity="fill"
-                    app:tabMode="fixed"
-                    app:tabTextColor="@android:color/white" />
-
             </com.google.android.material.appbar.AppBarLayout>
-
-            <androidx.viewpager.widget.ViewPager
-                android:id="@+id/viewPager"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/app_bar">
-
-            </androidx.viewpager.widget.ViewPager>
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fab"
+                style="@style/Theme.FAB"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="end|bottom"
-                android:layout_margin="16dp"
-                android:src="@drawable/ic_add"
+                android:backgroundTint="@color/light_blue"
                 android:onClick="@{() -> homeFragment.navigateToCreateRoom()}"
+                android:src="@drawable/ic_add"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:tint="@color/white" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -1,12 +1,12 @@
 package com.mis.route.chatapp.ui.fragments.chat
 
 import android.annotation.SuppressLint
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.google.firebase.Timestamp
@@ -15,21 +15,20 @@ import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.mis.route.chatapp.data.firebase.DataConstants
+import com.mis.route.chatapp.data.firebase.auth.FirebaseAuth
 import com.mis.route.chatapp.databinding.FragmentChatBinding
 import com.mis.route.chatapp.model.ChatViewModel
-import com.mis.route.chatapp.ui.UiConstants
 import com.mis.route.chatapp.ui.fragments.createroom.model.Room
 import com.mis.route.chatapp.ui.model.Message
 
 /**
  * A simple [Fragment] subclass.
  */
-class ChatFragment : Fragment() {
+class ChatFragment(private val room: Room) : Fragment() {
     private var _binding: FragmentChatBinding? = null
     private val binding get() = _binding!!
     private val sharedViewModel: ChatViewModel by activityViewModels()
-    private var room: Room? = null
-    private lateinit var messagesListenerReg: ListenerRegistration
+    private lateinit var messagesListenerRegistration: ListenerRegistration
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,14 +44,30 @@ class ChatFragment : Fragment() {
             lifecycleOwner = viewLifecycleOwner
             chatFragment = this@ChatFragment
         }
-        getRoom()
         initRecyclerView()
-        messagesListenerReg = observeFirestoreChanges()
+        observeLiveData()
+        messagesListenerRegistration = observeFirestoreChanges()
     }
 
-    private fun observeFirestoreChanges() : ListenerRegistration {
+    private fun observeLiveData() {
+        sharedViewModel.messages.observe(viewLifecycleOwner, ::handleMessagesLoading)
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun handleMessagesLoading(messages: MutableList<Message>) {
+        if (messages.isEmpty()) toggleRecyclerView(false)
+        else {
+            toggleRecyclerView(true)
+            (binding.messagesRecycler.adapter as MessagesAdapter).apply {
+                messagesList = messages
+                notifyDataSetChanged()
+            }
+        }
+    }
+
+    private fun observeFirestoreChanges(): ListenerRegistration {
         val collRef = Firebase.firestore.collection(DataConstants.ROOMS_COLLECTION)
-            .document(room?.id!!)
+            .document(room.id!!)
             .collection(DataConstants.MESSAGES_COLLECTION)
 
         return collRef.addSnapshotListener { snapshot, e ->
@@ -66,67 +81,64 @@ class ChatFragment : Fragment() {
             for (doc in snapshot.documentChanges) {
                 when (doc.type) {
                     DocumentChange.Type.ADDED -> {
+                        toggleRecyclerView(true)
                         showAddedMessages(mutableListOf(doc.document.toObject(Message::class.java)))
                     }
 
-                    else -> {
-
-                    }
+                    else -> {}
                 }
             }
         }
     }
 
-    private fun getRoom() {
-        arguments?.let {
-            room = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                it.getParcelable(UiConstants.PASSED_ROOM, Room::class.java)
-            } else {
-                it.getParcelable(UiConstants.PASSED_ROOM)
-            }
-        }
-    }
-
     private fun initRecyclerView() {
-        val adapter = MessagesAdapter(null)
+        val adapter = MessagesAdapter(mutableListOf())
         binding.messagesRecycler.adapter = adapter
         loadMessages()
     }
 
     @SuppressLint("NotifyDataSetChanged")
     fun loadMessages() {
-        room?.let {
+        room.let {
             (binding.messagesRecycler.adapter as MessagesAdapter).apply {
-                messagesList = sharedViewModel.getMessages(room!!.id!!)
-                notifyDataSetChanged()
+                sharedViewModel.getMessages(room.id!!)
             }
         }
     }
 
     fun sendMessage() {
-        room?.id?.let {
+        room.id?.let {
             val message = Message(
                 binding.messageInput.text.toString(),
-                sharedViewModel.getCurrentUser()?.uid,
+                FirebaseAuth.getCurrentAuthUser()?.uid,
+                sharedViewModel.userProfile.value?.username,
                 it,
                 Timestamp.now()
-                )
+            )
             sharedViewModel.sendMessage(message)
+            binding.messageInput.setText("")
         }
-
     }
 
     private fun showAddedMessages(newMessages: MutableList<Message>) {
         (binding.messagesRecycler.adapter as MessagesAdapter).apply {
-            messagesList?.addAll(newMessages)
-            val startPosition = messagesList!!.size - newMessages.size
-            notifyItemRangeInserted(startPosition, newMessages.size)
+            messagesList?.let {
+                it.addAll(newMessages)
+                val startPosition = it.size - newMessages.size
+                notifyItemRangeInserted(startPosition, newMessages.size)
+                binding.messagesRecycler.smoothScrollToPosition(it.size - 1)
+            }
         }
+    }
+
+    private fun toggleRecyclerView(show: Boolean) {
+        binding.messagesRecycler.isVisible = show
+        binding.alternativeTextview.isVisible = !show
     }
 
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
-        messagesListenerReg.remove() // stop observing messages real-time updates
+        messagesListenerRegistration.remove() // stop observing messages real-time updates
     }
 }

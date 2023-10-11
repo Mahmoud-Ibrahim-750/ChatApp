@@ -7,9 +7,12 @@
     tools:context=".ui.fragments.home.AllRoomsFragment">
 
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="All Rooms"
+        android:id="@+id/alternative_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/no_rooms_to_show"
+        android:textSize="18sp"
         android:visibility="gone" />
 
     <androidx.recyclerview.widget.RecyclerView
@@ -17,6 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
+        android:visibility="visible"
         app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
         app:spanCount="2"
         tools:itemCount="10"
