@@ -7,14 +7,15 @@
 
         <variable
             name="registerFragment"
-            type="com.mis.route.chatapp.ui.fragments.RegisterFragment" />
+            type="com.mis.route.chatapp.ui.fragments.register.RegisterFragment" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="220dp"
         android:padding="16dp"
-        tools:context=".ui.fragments.LoginFragment">
+        tools:context=".ui.fragments.login.LoginFragment">
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/username_container"
@@ -30,7 +31,9 @@
                 android:id="@+id/username_input"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@android:color/transparent" />
+                android:background="@android:color/transparent"
+                android:inputType="textPersonName" />
+
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -48,7 +51,8 @@
                 android:id="@+id/email_input"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@android:color/transparent" />
+                android:background="@android:color/transparent"
+                android:inputType="textEmailAddress" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -59,6 +63,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:hint="@string/password"
+            app:endIconMode="password_toggle"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/email_container">
@@ -67,7 +72,8 @@
                 android:id="@+id/password_input"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@android:color/transparent" />
+                android:background="@android:color/transparent"
+                android:inputType="textPassword" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -78,6 +84,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:hint="@string/password_confirmation"
+            app:endIconMode="password_toggle"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/password_container">
@@ -86,7 +93,8 @@
                 android:id="@+id/password_confirm_input"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@android:color/transparent" />
+                android:background="@android:color/transparent"
+                android:inputType="textPassword" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -94,21 +102,23 @@
             android:id="@+id/register_button"
             android:layout_width="match_parent"
             android:layout_height="60dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginHorizontal="3dp"
+            android:layout_marginTop="64dp"
             android:backgroundTint="@color/white"
             android:onClick="@{() -> registerFragment.registerAccount()}"
             app:cardCornerRadius="5dp"
             app:cardElevation="5dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/password_confirm_container">
+            app:layout_constraintTop_toBottomOf="@+id/password_confirm_container"
+            app:strokeColor="@color/white">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start|center_vertical"
                 android:layout_marginStart="35dp"
-                android:text="@string/register_text"
+                android:text="@string/create_account"
                 android:textColor="@color/gray"
                 android:textSize="16sp"
                 android:textStyle="bold" />

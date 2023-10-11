@@ -1,4 +1,4 @@
-package com.mis.route.chatapp.ui
+package com.mis.route.chatapp.ui.model
 
 import android.content.DialogInterface
 

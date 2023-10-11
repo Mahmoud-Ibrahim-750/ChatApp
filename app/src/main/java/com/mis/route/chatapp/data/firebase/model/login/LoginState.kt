@@ -1,4 +1,4 @@
-package com.mis.route.chatapp.data.firebase
+package com.mis.route.chatapp.data.firebase.model.login
 
 enum class LoginState {
     Idle,

@@ -1,5 +1,6 @@
 package com.mis.route.chatapp.ui.fragments.createroom
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,15 +9,16 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.mis.route.chatapp.R
-import com.mis.route.chatapp.data.firebase.RoomCreationState
-import com.mis.route.chatapp.data.firebase.RoomCreationStatus
+import com.mis.route.chatapp.data.firebase.auth.FirebaseAuth
+import com.mis.route.chatapp.data.firebase.model.roomcreation.RoomCreationState
+import com.mis.route.chatapp.data.firebase.model.roomcreation.RoomCreationStatus
 import com.mis.route.chatapp.databinding.FragmentCreateRoomBinding
 import com.mis.route.chatapp.model.ChatViewModel
 import com.mis.route.chatapp.ui.Extensions.buildProgressDialog
 import com.mis.route.chatapp.ui.Extensions.showMessage
-import com.mis.route.chatapp.ui.DialogMessage
 import com.mis.route.chatapp.ui.fragments.createroom.model.Room
 import com.mis.route.chatapp.ui.fragments.createroom.model.RoomCategories
+import com.mis.route.chatapp.ui.model.DialogMessage
 import com.mis.route.chatapp.ui.model.RoomCategory
 
 /**
@@ -26,6 +28,7 @@ class CreateRoomFragment : Fragment() {
     private var _binding: FragmentCreateRoomBinding? = null
     private val binding get() = _binding!!
     private val sharedViewModel: ChatViewModel by activityViewModels()
+    private lateinit var progressDialogBuilder: AlertDialog
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -42,17 +45,17 @@ class CreateRoomFragment : Fragment() {
             createRoomFragment = this@CreateRoomFragment
         }
         initSpinner()
-        defineObservationActions()
-    }
-
-    private fun handleRoomCreation(roomCreationStatus: RoomCreationStatus) {
-        val progressDialogBuilder = buildProgressDialog(
+        progressDialogBuilder = buildProgressDialog(
             DialogMessage(
                 "Creating a Room",
                 "Please, wait until we create your room...",
                 cancelable = false
             )
         )
+        observeLiveData()
+    }
+
+    private fun handleRoomCreation(roomCreationStatus: RoomCreationStatus) {
         when (roomCreationStatus.state) {
             RoomCreationState.Succeeded -> {
                 progressDialogBuilder.dismiss()
@@ -91,7 +94,7 @@ class CreateRoomFragment : Fragment() {
         }
     }
 
-    private fun defineObservationActions() {
+    private fun observeLiveData() {
         sharedViewModel.roomCreationStatus.observe(viewLifecycleOwner, ::handleRoomCreation)
     }
 
@@ -125,7 +128,7 @@ class CreateRoomFragment : Fragment() {
     fun createRoom() {
         if (!isInputValid()) return
         val room = Room(
-            ownerId = sharedViewModel.getCurrentUser()?.uid,
+            ownerId = FirebaseAuth.getCurrentAuthUser()?.uid,
             title = binding.roomNameInput.text.toString(),
             description = binding.roomDescInput.text.toString(),
             category = (binding.roomCategorySpinner.selectedItem as RoomCategory).title,

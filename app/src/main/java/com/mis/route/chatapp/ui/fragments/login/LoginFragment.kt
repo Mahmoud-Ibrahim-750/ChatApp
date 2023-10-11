@@ -1,4 +1,4 @@
-package com.mis.route.chatapp.ui.fragments
+package com.mis.route.chatapp.ui.fragments.login
 
 import android.content.DialogInterface
 import android.os.Bundle
@@ -10,13 +10,13 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.mis.route.chatapp.R
-import com.mis.route.chatapp.data.firebase.LoginState
-import com.mis.route.chatapp.data.firebase.LoginStatus
+import com.mis.route.chatapp.data.firebase.model.login.LoginState
+import com.mis.route.chatapp.data.firebase.model.login.LoginStatus
 import com.mis.route.chatapp.databinding.FragmentLoginBinding
 import com.mis.route.chatapp.model.ChatViewModel
 import com.mis.route.chatapp.ui.Extensions.showMessage
-import com.mis.route.chatapp.ui.DialogMessage
 import com.mis.route.chatapp.ui.UiConstants
+import com.mis.route.chatapp.ui.model.DialogMessage
 
 /**
  * A simple [Fragment] subclass.
@@ -103,8 +103,12 @@ class LoginFragment : Fragment() {
         )
     }
 
-    fun fakeLogin() {
+    fun fakeLoginAya() {
         sharedViewModel.singIn("aya@dev.com", "123456")
+    }
+
+    fun fakeLoginAli() {
+        sharedViewModel.singIn("ali2@dev.com", "123456")
     }
 
     fun resetPassword() {

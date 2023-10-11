@@ -1,4 +1,4 @@
-package com.mis.route.chatapp.ui.fragments
+package com.mis.route.chatapp.ui.fragments.register
 
 import android.content.DialogInterface
 import android.os.Bundle
@@ -10,13 +10,13 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.mis.route.chatapp.R
-import com.mis.route.chatapp.data.firebase.AuthState
-import com.mis.route.chatapp.data.firebase.AuthStatus
+import com.mis.route.chatapp.data.firebase.model.auth.AuthState
+import com.mis.route.chatapp.data.firebase.model.auth.AuthStatus
 import com.mis.route.chatapp.databinding.FragmentRegisterBinding
 import com.mis.route.chatapp.model.ChatViewModel
 import com.mis.route.chatapp.ui.Extensions.showMessage
-import com.mis.route.chatapp.ui.DialogMessage
 import com.mis.route.chatapp.ui.UiConstants
+import com.mis.route.chatapp.ui.model.DialogMessage
 
 /**
  * A simple [Fragment] subclass.

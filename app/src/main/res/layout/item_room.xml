@@ -34,16 +34,18 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="@{room.title}"
-                android:textSize="14sp"
+                android:textSize="16sp"
                 android:textStyle="bold"
                 tools:text="The Movies Zone" />
 
-            <Button
+            <TextView
                 android:id="@+id/join_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                tools:text="Join" />
+                android:text="@{@plurals/members_count(room.membersCount(), room.membersCount())}"
+                android:textSize="14sp"
+                tools:text="13 Members" />
 
         </LinearLayout>
 

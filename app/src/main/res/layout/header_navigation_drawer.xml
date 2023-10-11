@@ -37,7 +37,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="@{viewModel.user.username}"
+            android:text="@{viewModel.userProfile.username}"
             android:textColor="@color/white"
             android:textSize="24sp"
             tools:text="Mahmoud Ibrahim" />
@@ -45,7 +45,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{viewModel.user.email}"
+            android:text="@{viewModel.userProfile.email}"
             android:textColor="@color/white"
             android:textSize="24sp"
             tools:text="houda@dev.com" />

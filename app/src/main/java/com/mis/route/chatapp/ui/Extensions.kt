@@ -2,6 +2,7 @@ package com.mis.route.chatapp.ui
 
 import android.app.AlertDialog
 import androidx.fragment.app.Fragment
+import com.mis.route.chatapp.ui.model.DialogMessage
 
 object Extensions {
     fun Fragment.showMessage(dialogMessage: DialogMessage) {
