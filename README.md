@@ -20,13 +20,13 @@ data management.
 ## Screenshots
 
 <p align="center">
-  <img src="screenshots/screenshot_1.jpg" width="300" />
-  <img src="screenshots/screenshot_2.jpg" width="300" />
-  <img src="screenshots/screenshot_3.jpg" width="300" />
+  <img src="screenshots/screenshot_1.jpg" width="210" />
+  <img src="screenshots/screenshot_2.jpg" width="210" />
+  <img src="screenshots/screenshot_3.jpg" width="210" />
 </p>
 <p align="center">
-  <img src="screenshots/screenshot_4.jpg" width="400" />
-  <img src="screenshots/screenshot_5.jpg" width="400" />
+  <img src="screenshots/screenshot_4.jpg" width="210" />
+  <img src="screenshots/screenshot_5.jpg" width="210" />
 </p>
 
 ## Technologies Used
