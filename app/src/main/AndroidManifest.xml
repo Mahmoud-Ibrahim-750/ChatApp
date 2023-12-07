@@ -13,4 +13,5 @@
         android:theme="@style/Theme.ChatApp"
         tools:targetApi="31" />
 
+
 </manifest>
