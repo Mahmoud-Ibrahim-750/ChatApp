@@ -19,11 +19,15 @@ data management.
 
 ## Screenshots
 
-![Screenshot 1](screenshots/screenshot_1.jpg)
-![Screenshot 2](screenshots/screenshot_2.jpg)
-![Screenshot 3](screenshots/screenshot_3.jpg)
-![Screenshot 4](screenshots/screenshot_4.jpg)
-![Screenshot 5](screenshots/screenshot_5.jpg)
+<p align="center">
+  <img src="screenshots/screenshot_1.jpg" width="300" />
+  <img src="screenshots/screenshot_2.jpg" width="300" />
+  <img src="screenshots/screenshot_3.jpg" width="300" />
+</p>
+<p align="center">
+  <img src="screenshots/screenshot_4.jpg" width="400" />
+  <img src="screenshots/screenshot_5.jpg" width="400" />
+</p>
 
 ## Technologies Used
 
@@ -57,5 +61,5 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## Contact
 
-For any inquiries or collaboration opportunities, feel free to reach out to Mahmoud Ibrahim at
+For any inquiries or collaboration opportunities, feel free to reach me out at
 futuredream31@gmail.com.
